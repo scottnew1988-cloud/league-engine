@@ -12,19 +12,29 @@ app.use(cors({
 
 app.use(express.json());
 
-// ✅ health check
+// =========================
+// HEALTH CHECK
+// =========================
 app.get("/", (req, res) => {
   res.status(200).send("League Engine OK");
 });
 
-// ✅ the endpoint Base44 needs
+// =========================
+// GENERATE FIXTURES
+// =========================
 app.post("/admin/generate-fixtures", async (req, res) => {
   const { season_name } = req.body || {};
+
   if (!season_name) {
-    return res.status(400).json({ ok: false, error: "season_name is required" });
+    return res.status(400).json({
+      ok: false,
+      error: "season_name is required"
+    });
   }
 
-  // TODO: replace this stub with your real fixture generation logic
+  console.log("📅 Generating fixtures for", season_name);
+
+  // TODO: real fixture generation logic later
   return res.status(200).json({
     ok: true,
     message: "generate-fixtures called",
@@ -32,6 +42,35 @@ app.post("/admin/generate-fixtures", async (req, res) => {
   });
 });
 
+// =========================
+// DAILY MATCH SIMULATION
+// =========================
+const CRON_SECRET = process.env.CRON_SECRET || "change-me";
+
+app.post("/admin/simulate-day", async (req, res) => {
+  const secret = req.header("x-cron-secret");
+
+  if (secret !== CRON_SECRET) {
+    return res.status(401).json({
+      ok: false,
+      error: "Unauthorized"
+    });
+  }
+
+  console.log("⚽ Simulating today's matches...");
+
+  // TODO: real match simulation logic later
+  return res.json({
+    ok: true,
+    message: "simulate-day ran"
+  });
+});
+
+// =========================
+// START SERVER
+// =========================
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => console.log("League Engine running on port", PORT));
+app.listen(PORT, () =>
+  console.log("League Engine running on port", PORT)
+);
 
